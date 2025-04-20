@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<!-- saved from url=(0079)https://f43549f4-3161-40f0-bb67-51947ae8ac25-00-1uql5anw70dmo.riker.replit.dev/ -->
+<html lang="en" data-bs-theme="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GECO Head Office Attendance</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="./GECO Head Office Attendance_files/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+  
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="./GECO Head Office Attendance_files/bootstrap-icons.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="./GECO Head Office Attendance_files/styles.css">
+  
+  <!-- Add to home screen for iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="GECO Attendance">
+  <link rel="apple-touch-icon" href="https://f43549f4-3161-40f0-bb67-51947ae8ac25-00-1uql5anw70dmo.riker.replit.dev/static/img/icon-192.png">
+  
+  <!-- PWA support -->
+  <meta name="theme-color" content="#343a40">
+  <link rel="manifest" href="https://f43549f4-3161-40f0-bb67-51947ae8ac25-00-1uql5anw70dmo.riker.replit.dev/static/manifest.json">
+  <link rel="icon" type="image/png" href="https://f43549f4-3161-40f0-bb67-51947ae8ac25-00-1uql5anw70dmo.riker.replit.dev/static/img/icon-192.png">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header text-center">
+    <div class="container">
+      <img src="./GECO Head Office Attendance_files/geco-logo.png" alt="GECO Logo" class="logo mb-3" style="height: 60px;">
+      <h1>Head Office Attendance</h1>
+      <p class="lead">Track staff and visitor attendance for reporting</p>
+    </div>
+  </header>
+
+  <div class="container mb-5">
+    <!-- Admin Login Modal -->
+    <div class="modal fade" id="adminLoginModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Admin Login</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="email" id="adminEmail" class="form-control" placeholder="Enter admin email">
+            <div class="mt-2" id="adminLoginError" style="color: red;"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="checkAdminAccess()">Login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Department Management Modal -->
+    <div class="modal fade" id="deptManageModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Department Management</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Add New Department -->
+            <div class="card mb-3">
+              <div class="card-header bg-primary text-white">Add New Department</div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <input type="text" class="form-control" id="newDeptName" placeholder="Department Name">
+                </div>
+                <div id="initialStaffList">
+                  <div class="input-group mb-2">
+                    <input type="text" class="form-control initial-staff" placeholder="Initial Staff Member (Required)">
+                    <button class="btn btn-outline-danger" type="button" onclick="this.parentElement.remove()">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary mb-3" onclick="addInitialStaffField()">
+                  <i class="bi bi-plus-circle"></i> Add Staff Member
+                </button>
+                <button class="btn btn-success" onclick="addNewDepartment()">Add Department</button>
+              </div>
+            </div>
+            
+            <!-- Existing Departments -->
+            <div class="card">
+              <div class="card-header bg-primary text-white">Manage Departments</div>
+              <div class="card-body" id="deptManageList">
+                <!-- Will be populated dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Buttons -->
+    <div class="text-end mb-3">
+      <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#adminLoginModal">
+        <i class="bi bi-shield-lock"></i> Admin Access
+      </button>
+      <button class="btn btn-outline-success d-none admin-only" data-bs-toggle="modal" data-bs-target="#deptManageModal">
+        <i class="bi bi-gear"></i> Manage Departments
+      </button>
+    </div>
+
+    <!-- Alert placeholder -->
+    <div id="alertPlaceholder"></div>
+    
+    <!-- Main content -->
+    <form id="attendanceForm">
+      <div class="row">
+        <!-- Submitter Information -->
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0"><i class="bi bi-person-circle"></i> Submitter Information</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label for="submitter" class="form-label">👤 Your Name</label>
+                <input type="text" class="form-control" id="submitter" placeholder="Enter your name" required="">
+              </div>
+              
+              <div class="mb-3">
+                <label for="date" class="form-label">📅 Date</label>
+                <input type="date" class="form-control" id="date" required="">
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Department Selection -->
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0"><i class="bi bi-building"></i> Department Selection</h5>
+            </div>
+            <div class="card-body">
+              <p>🏢 Select Department (only one allowed):</p>
+              <div class="radio-group row row-cols-1 row-cols-md-2 g-3" id="departmentRadios"><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-qhse-department" value="QHSE Department"><label class="card w-100 text-center" for="dept-qhse-department"><div class="card-body">QHSE Department</div></label></div></div><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-power-division" value="Power Division"><label class="card w-100 text-center" for="dept-power-division"><div class="card-body">Power Division</div></label></div></div><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-civil-division" value="Civil Division"><label class="card w-100 text-center" for="dept-civil-division"><div class="card-body">Civil Division</div></label></div></div><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-mep-division" value="MEP Division"><label class="card w-100 text-center" for="dept-mep-division"><div class="card-body">MEP Division</div></label></div></div><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-procurement-qs-department" value="Procurement-QS Department"><label class="card w-100 text-center" for="dept-procurement-qs-department"><div class="card-body">Procurement-QS Department</div></label></div></div><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-estimation---costing---planning" value="Estimation - Costing - Planning"><label class="card w-100 text-center" for="dept-estimation---costing---planning"><div class="card-body">Estimation - Costing - Planning</div></label></div></div><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-accounts-department" value="Accounts Department"><label class="card w-100 text-center" for="dept-accounts-department"><div class="card-body">Accounts Department</div></label></div></div><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-human-resource" value="Human Resource"><label class="card w-100 text-center" for="dept-human-resource"><div class="card-body">Human Resource</div></label></div></div><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-main-store" value="Main Store"><label class="card w-100 text-center" for="dept-main-store"><div class="card-body">Main Store</div></label></div></div><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-duct-workshop" value="Duct Workshop"><label class="card w-100 text-center" for="dept-duct-workshop"><div class="card-body">Duct Workshop</div></label></div></div><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-transport-department" value="Transport Department"><label class="card w-100 text-center" for="dept-transport-department"><div class="card-body">Transport Department</div></label></div></div><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-facility-management-department" value="Facility Management Department"><label class="card w-100 text-center" for="dept-facility-management-department"><div class="card-body">Facility Management Department</div></label></div></div><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-it-department" value="IT Department"><label class="card w-100 text-center" for="dept-it-department"><div class="card-body">IT Department</div></label></div></div><div class="col"><div class="department-card"><input class="btn-check" type="radio" name="department" id="dept-admin" value="Admin"><label class="card w-100 text-center" for="dept-admin"><div class="card-body">Admin</div></label></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Staff List Container (initially hidden) -->
+      <div class="card mb-4 d-none" id="staffListContainer">
+        <!-- Admin Controls -->
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">📋 Staff Attendance</h5>
+          <div class="admin-only d-none">
+            <div class="input-group">
+              <input type="text" class="form-control" id="newStaffName" placeholder="New staff name">
+              <button class="btn btn-light" onclick="addNewStaffMember()">
+                <i class="bi bi-plus-circle"></i> Add
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Search and staff list will be populated here -->
+        </div>
+      </div>
+      
+      <!-- Visitors Section -->
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-people-fill"></i> Visitors</h5>
+        </div>
+        <div class="card-body">
+          <div id="visitorList">
+            <div class="input-group mb-2 visitor-row">
+              <input type="text" class="form-control visitor-input" placeholder="Visitor 1" aria-label="Visitor name">
+              <button class="btn btn-outline-danger" type="button" onclick="this.parentElement.remove()">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+          <button type="button" class="btn btn-outline-primary mt-2" id="addVisitor">
+            <i class="bi bi-plus-circle"></i> Add Visitor
+          </button>
+        </div>
+      </div>
+      
+      <!-- Submit Button -->
+      <div class="d-grid gap-2 col-md-6 mx-auto">
+        <button type="submit" class="btn btn-lg btn-success mb-3" id="submitBtn">
+          <i class="bi bi-check-circle"></i> Submit
+        </button>
+      </div>
+    </form>
+    
+    <!-- Install App Button -->
+    <div class="card mb-4">
+      <div class="card-body text-center">
+        <p><i class="bi bi-phone"></i> Want to install this app on your phone?</p>
+        <div class="row">
+          <div class="col-md-6 mb-2 mb-md-0">
+            <a href="https://f43549f4-3161-40f0-bb67-51947ae8ac25-00-1uql5anw70dmo.riker.replit.dev/install" class="btn btn-primary w-100">
+              <i class="bi bi-download"></i> Get App QR Code
+            </a>
+          </div>
+          <div class="col-md-6">
+            <a href="https://f43549f4-3161-40f0-bb67-51947ae8ac25-00-1uql5anw70dmo.riker.replit.dev/standalone-qr" class="btn btn-success w-100">
+              <i class="bi bi-file-earmark-code"></i> Get Standalone HTML Version
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="mt-5 text-center text-muted">
+      <p><small>GECO Head Office Attendance System © 2023</small></p>
+    </footer>
+  </div>
+  
+  <!-- Staff Data -->
+  <script src="./GECO Head Office Attendance_files/staff_data.js.download"></script>
+  
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="./GECO Head Office Attendance_files/bootstrap.bundle.min.js.download"></script>
+  
+  <!-- Custom JavaScript -->
+  <script src="./GECO Head Office Attendance_files/main.js.download"></script>
+  
+  <script>
+    // Initialize department radio buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const departmentRadios = document.getElementById('departmentRadios');
+      
+      Object.keys(staffData).forEach(dept => {
+        const col = document.createElement('div');
+        col.className = 'col';
+        
+        const wrapper = document.createElement('div');
+        wrapper.className = 'department-card';
+        
+        const input = document.createElement('input');
+        input.className = 'btn-check';
+        input.type = 'radio';
+        input.name = 'department';
+        input.id = `dept-${dept.replace(/\s+/g, '-').toLowerCase()}`;
+        input.value = dept;
+        input.addEventListener('change', function() {
+          if (this.checked) {
+            loadStaff(dept);
+          }
+        });
+        
+        const label = document.createElement('label');
+        label.className = 'card w-100 text-center';
+        label.setAttribute('for', `dept-${dept.replace(/\s+/g, '-').toLowerCase()}`);
+        
+        const cardBody = document.createElement('div');
+        cardBody.className = 'card-body';
+        cardBody.textContent = dept;
+        
+        label.appendChild(cardBody);
+        wrapper.appendChild(input);
+        wrapper.appendChild(label);
+        col.appendChild(wrapper);
+        departmentRadios.appendChild(col);
+      });
+      
+      // Set default date to today
+      const today = new Date();
+      const formattedDate = today.toISOString().slice(0, 10);
+      document.getElementById('date').value = formattedDate;
+      
+      // Register service worker for PWA
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/static/service-worker.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(error => {
+              console.log('ServiceWorker registration failed: ', error);
+            });
+        });
+      }
+    });
+  </script>
+
+</body></html>
